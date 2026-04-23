@@ -1,6 +1,7 @@
 name: Build And Release
 
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -8,18 +9,47 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
-  group: artemis-2-wallpaper-release
+  group: privacyfilter-release-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: registry.144.91.77.245.sslip.io/dokploy-fleet-artemis-2-wallpaper-artemis-2-wallpaper
-  FLEET_REPO: gateszhangc/k8s-fleet
-  FLEET_TENANT_PATH: tenants/artemis-2-wallpaper/20-artemis-2-wallpaper-deployment.yaml
+  APP_NAME: privacyfilter
+  BUILD_NAMESPACE: build-jobs
+  DEPLOY_NAMESPACE: privacyfilter
+  IMAGE_NAME: ghcr.io/gateszhangc/privacyfilter
+  CACHE_REPO: ghcr.io/gateszhangc/privacyfilter-cache
+  GITOPS_REPO: gateszhangc/k8s-fleet
+  GITOPS_PATH: tenants/privacyfilter
+  ARGOCD_APP_NAME: privacyfilter
 
 jobs:
-  build-and-push:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: npm run test:ci
+
+  build-in-cluster:
+    if: github.event_name != 'pull_request'
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.meta.outputs.image_tag }}
@@ -29,70 +59,141 @@ jobs:
 
       - name: Derive image tag
         id: meta
-        run: echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+        run: echo "image_tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
 
-      - name: Log in to registry
-        uses: docker/login-action@v3
-        with:
-          registry: registry.144.91.77.245.sslip.io
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Configure kubeconfig
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s' "$KUBE_CONFIG_DATA" | base64 --decode > "$HOME/.kube/config"
 
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.image_tag }}
+      - name: Create build namespace
+        run: kubectl create namespace "$BUILD_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
-  update-fleet:
-    needs: build-and-push
+      - name: Create build job secrets
+        env:
+          ACTIONS_GITHUB_TOKEN: ${{ github.token }}
+          GHCR_USERNAME: ${{ github.actor }}
+        run: |
+          kubectl -n "$BUILD_NAMESPACE" create secret generic privacyfilter-build-git-auth \
+            --from-literal=token="$ACTIONS_GITHUB_TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          mkdir -p /tmp/privacyfilter-ghcr
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          Path("/tmp/privacyfilter-ghcr/config.json").write_text(
+              json.dumps(
+                  {
+                      "auths": {
+                          "ghcr.io": {
+                              "username": os.environ["GHCR_USERNAME"],
+                              "password": os.environ["ACTIONS_GITHUB_TOKEN"],
+                          }
+                      }
+                  }
+              )
+          )
+          PY
+
+          kubectl -n "$BUILD_NAMESPACE" create secret generic privacyfilter-build-registry \
+            --from-file=config.json=/tmp/privacyfilter-ghcr/config.json \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Render build job manifest
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.image_tag }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          template = Path("deploy/build-job.yaml").read_text()
+          replacements = {
+              "__BUILD_NAMESPACE__": os.environ["BUILD_NAMESPACE"],
+              "__CACHE_REPO__": os.environ["CACHE_REPO"],
+              "__GIT_SHA__": os.environ["GITHUB_SHA"],
+              "__IMAGE_NAME__": os.environ["IMAGE_NAME"],
+              "__IMAGE_TAG__": os.environ["IMAGE_TAG"],
+              "__JOB_NAME__": f"privacyfilter-build-{os.environ['IMAGE_TAG']}",
+              "__REPOSITORY__": os.environ["GITHUB_REPOSITORY"],
+          }
+
+          for key, value in replacements.items():
+              template = template.replace(key, value)
+
+          Path("build-job.rendered.yaml").write_text(template)
+          PY
+
+      - name: Start cluster build job
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.image_tag }}
+        run: |
+          kubectl -n "$BUILD_NAMESPACE" delete job "privacyfilter-build-${IMAGE_TAG}" --ignore-not-found
+          kubectl apply -f build-job.rendered.yaml
+
+      - name: Wait for build job
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.image_tag }}
+        run: |
+          if ! kubectl -n "$BUILD_NAMESPACE" wait --for=condition=complete --timeout=30m "job/privacyfilter-build-${IMAGE_TAG}"; then
+            kubectl -n "$BUILD_NAMESPACE" logs "job/privacyfilter-build-${IMAGE_TAG}" --all-containers=true || true
+            exit 1
+          fi
+          kubectl -n "$BUILD_NAMESPACE" logs "job/privacyfilter-build-${IMAGE_TAG}" --all-containers=true
+
+  update-gitops:
+    if: github.event_name != 'pull_request'
+    needs: build-in-cluster
     runs-on: ubuntu-latest
     steps:
-      - name: Check out fleet repo
+      - name: Check out GitOps repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.FLEET_REPO }}
-          token: ${{ secrets.FLEET_REPO_PAT }}
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.K8S_FLEET_PAT }}
           path: k8s-fleet
 
-      - name: Update deployment image tag
+      - name: Update image tag in tenant kustomization
         env:
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          IMAGE_TAG: ${{ needs.build-in-cluster.outputs.image_tag }}
         run: |
           python3 - <<'PY'
           import os
           import re
           from pathlib import Path
 
-          path = Path("k8s-fleet") / os.environ["FLEET_TENANT_PATH"]
+          path = Path("k8s-fleet") / os.environ["GITOPS_PATH"] / "kustomization.yaml"
           content = path.read_text()
           updated, count = re.subn(
-              r"(^\s*image:\s*registry\.144\.91\.77\.245\.sslip\.io/dokploy-fleet-artemis-2-wallpaper-artemis-2-wallpaper:).*$",
-              rf"\1{os.environ['IMAGE_TAG']}",
+              r'(newTag:\s*).*$',
+              lambda match: f'{match.group(1)}"{os.environ["IMAGE_TAG"]}"',
               content,
               count=1,
               flags=re.MULTILINE,
           )
           if count != 1:
-              raise SystemExit("Expected exactly one image line to update in the fleet deployment manifest.")
+              raise SystemExit(f"Expected exactly one newTag entry in {path}.")
           path.write_text(updated)
           PY
 
-      - name: Commit fleet update
+      - name: Commit GitOps release
         env:
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          IMAGE_TAG: ${{ needs.build-in-cluster.outputs.image_tag }}
         run: |
           cd k8s-fleet
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$FLEET_TENANT_PATH"
+          git add "$GITOPS_PATH/kustomization.yaml"
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "chore: release artemis-2-wallpaper ${IMAGE_TAG}"
+          git commit -m "chore: release privacyfilter ${IMAGE_TAG}"
           git push origin HEAD:main

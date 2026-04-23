@@ -1,0 +1,41 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071722"/>
+      <stop offset="1" stop-color="#02080E"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(160 120) rotate(24) scale(430 280)">
+      <stop stop-color="#45DDB7" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#45DDB7" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(990 120) rotate(142) scale(360 240)">
+      <stop stop-color="#6DB9FF" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#6DB9FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="776" y1="168" x2="1052" y2="446" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8AF7CF"/>
+      <stop offset="1" stop-color="#6DB9FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="36" fill="url(#bg)"/>
+  <rect x="30" y="30" width="1140" height="570" rx="30" stroke="#A3D4FF" stroke-opacity="0.16" stroke-width="2"/>
+  <rect x="66" y="66" width="1068" height="498" rx="28" fill="#081723" fill-opacity="0.62" stroke="#A3D4FF" stroke-opacity="0.12" stroke-width="2"/>
+  <rect width="1200" height="630" fill="url(#glowA)"/>
+  <rect width="1200" height="630" fill="url(#glowB)"/>
+  <path d="M774 148H886L840 500H728L774 148Z" fill="url(#beam)"/>
+  <path d="M888 148H1000L954 500H842L888 148Z" fill="url(#beam)" fill-opacity="0.62"/>
+  <path d="M770 258H1056" stroke="#D1EDFF" stroke-opacity="0.16" stroke-width="18" stroke-linecap="round"/>
+  <path d="M742 338H1020" stroke="#8AF7CF" stroke-opacity="0.22" stroke-width="30" stroke-linecap="round"/>
+  <path d="M720 420H990" stroke="#6DB9FF" stroke-opacity="0.2" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="1010" cy="178" r="26" fill="#FFD27B"/>
+  <circle cx="1010" cy="178" r="48" stroke="#FFD27B" stroke-opacity="0.18" stroke-width="10"/>
+  <text x="118" y="172" fill="#8AF7CF" font-family="'IBM Plex Mono', monospace" font-size="20" letter-spacing="4.8">OPENAI PROJECT OVERVIEW</text>
+  <text x="118" y="292" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="78" font-weight="700">Privacy Filter</text>
+  <text x="118" y="362" fill="#9AB3C5" font-family="'Space Grotesk', sans-serif" font-size="28">
+    PII detection and masking for long-text, local redaction workflows.
+  </text>
+  <text x="118" y="430" fill="#9AB3C5" font-family="'Space Grotesk', sans-serif" font-size="28">
+    Taxonomy, runtime modes, evaluation posture, and deployment caveats.
+  </text>
+  <text x="118" y="510" fill="#D1EDFF" font-family="'IBM Plex Mono', monospace" font-size="22" letter-spacing="3.2">privacyfilter.lol</text>
+</svg>

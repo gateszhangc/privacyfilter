@@ -1,41 +1,57 @@
+document.documentElement.classList.add("has-js");
+
 const topbar = document.querySelector("[data-topbar]");
-const filterButtons = Array.from(document.querySelectorAll(".filter-button"));
-const wallpaperCards = Array.from(document.querySelectorAll(".wallpaper-card"));
-const resultsCount = document.querySelector("[data-results-count]");
-const yearNode = document.querySelector("#current-year");
+const navLinks = [...document.querySelectorAll(".nav a")];
+const revealNodes = [...document.querySelectorAll("[data-reveal]")];
+const sectionIds = navLinks
+  .map((link) => document.querySelector(link.getAttribute("href")))
+  .filter(Boolean);
 
-const updateResults = (filter) => {
-  let visible = 0;
-
-  wallpaperCards.forEach((card) => {
-    const tags = (card.dataset.tags || "").split(" ");
-    const matches = filter === "all" || tags.includes(filter);
-    card.hidden = !matches;
-    if (matches) visible += 1;
-  });
-
-  if (resultsCount) {
-    resultsCount.textContent = `Showing ${visible} wallpaper${visible === 1 ? "" : "s"}`;
-  }
-};
-
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    filterButtons.forEach((entry) => entry.classList.remove("is-active"));
-    button.classList.add("is-active");
-    updateResults(button.dataset.filter || "all");
-  });
-});
-
-if (yearNode) {
-  yearNode.textContent = new Date().getFullYear();
-}
-
-const handleScroll = () => {
+const updateTopbar = () => {
   if (!topbar) return;
   topbar.classList.toggle("is-scrolled", window.scrollY > 12);
 };
 
-window.addEventListener("scroll", handleScroll, { passive: true });
-handleScroll();
-updateResults("all");
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    });
+  },
+  {
+    threshold: 0.18
+  }
+);
+
+revealNodes.forEach((node) => revealObserver.observe(node));
+
+const sectionObserver = new IntersectionObserver(
+  (entries) => {
+    const visible = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+    if (!visible) return;
+
+    navLinks.forEach((link) => {
+      const isCurrent = link.getAttribute("href") === `#${visible.target.id}`;
+      if (isCurrent) {
+        link.setAttribute("aria-current", "true");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  },
+  {
+    rootMargin: "-25% 0px -55% 0px",
+    threshold: [0.2, 0.4, 0.6]
+  }
+);
+
+sectionIds.forEach((section) => sectionObserver.observe(section));
+
+window.addEventListener("scroll", updateTopbar, { passive: true });
+updateTopbar();
+

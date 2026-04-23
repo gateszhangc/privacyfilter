@@ -1,12 +1,13 @@
 {
-  "name": "artemis-2-wallpaper",
+  "name": "privacy-filter-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Static Artemis II wallpaper site built from publicly released NASA imagery.",
+  "description": "Static landing page for OpenAI Privacy Filter.",
   "scripts": {
     "start": "node server.js",
     "test": "playwright test",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:ci": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2"

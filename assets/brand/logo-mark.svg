@@ -1,0 +1,25 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="panel" x1="32" y1="32" x2="224" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E2432"/>
+      <stop offset="1" stop-color="#06131C"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="58" y1="88" x2="190" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8AF7CF"/>
+      <stop offset="1" stop-color="#6DB9FF"/>
+    </linearGradient>
+    <linearGradient id="ember" x1="162" y1="54" x2="204" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD27B"/>
+      <stop offset="1" stop-color="#FFAE6D"/>
+    </linearGradient>
+  </defs>
+  <rect x="18" y="18" width="220" height="220" rx="64" fill="url(#panel)"/>
+  <rect x="18.75" y="18.75" width="218.5" height="218.5" rx="63.25" stroke="#A3D4FF" stroke-opacity="0.24" stroke-width="1.5"/>
+  <path d="M74 62H128L103.5 194H49L74 62Z" fill="url(#beam)" fill-opacity="0.94"/>
+  <path d="M128 62H182L157.5 194H103L128 62Z" fill="url(#beam)" fill-opacity="0.6"/>
+  <path d="M72 94H198" stroke="#CFE8FF" stroke-opacity="0.18" stroke-width="10" stroke-linecap="round"/>
+  <path d="M63 128H190" stroke="#8AF7CF" stroke-opacity="0.18" stroke-width="16" stroke-linecap="round"/>
+  <path d="M54 162H182" stroke="#6DB9FF" stroke-opacity="0.2" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="184" cy="72" r="18" fill="url(#ember)"/>
+  <circle cx="184" cy="72" r="30" stroke="#FFD27B" stroke-opacity="0.24" stroke-width="6"/>
+</svg>

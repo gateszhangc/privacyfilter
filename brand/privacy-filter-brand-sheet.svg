@@ -1,0 +1,54 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071722"/>
+      <stop offset="1" stop-color="#02080E"/>
+    </linearGradient>
+    <linearGradient id="markA" x1="626" y1="212" x2="904" y2="498" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8AF7CF"/>
+      <stop offset="1" stop-color="#6DB9FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="52" fill="url(#bg)"/>
+  <rect x="46" y="46" width="1108" height="1108" rx="42" stroke="#A3D4FF" stroke-opacity="0.14" stroke-width="2"/>
+  <text x="88" y="110" fill="#8AF7CF" font-family="'IBM Plex Mono', monospace" font-size="24" letter-spacing="4.2">SIGNAL VEIL / BRAND SHEET</text>
+  <text x="88" y="250" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="104" font-weight="700">Privacy Filter</text>
+  <text x="88" y="320" fill="#93AEC1" font-family="'Space Grotesk', sans-serif" font-size="30">
+    selective disclosure · calibrated masking · scanning clarity
+  </text>
+  <rect x="88" y="404" width="252" height="252" rx="72" fill="#0E2432"/>
+  <path d="M150 454H212L184 610H122L150 454Z" fill="url(#markA)"/>
+  <path d="M212 454H274L246 610H184L212 454Z" fill="url(#markA)" fill-opacity="0.62"/>
+  <path d="M146 514H296" stroke="#D1EDFF" stroke-opacity="0.18" stroke-width="14" stroke-linecap="round"/>
+  <path d="M132 566H282" stroke="#8AF7CF" stroke-opacity="0.22" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="286" cy="472" r="18" fill="#FFD27B"/>
+  <rect x="88" y="740" width="212" height="130" rx="24" fill="#0E2432"/>
+  <text x="112" y="794" fill="#8AF7CF" font-family="'IBM Plex Mono', monospace" font-size="20">accent mint</text>
+  <text x="112" y="834" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="28">#8AF7CF</text>
+  <rect x="328" y="740" width="212" height="130" rx="24" fill="#102536"/>
+  <text x="352" y="794" fill="#8AF7CF" font-family="'IBM Plex Mono', monospace" font-size="20">accent blue</text>
+  <text x="352" y="834" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="28">#6DB9FF</text>
+  <rect x="568" y="740" width="212" height="130" rx="24" fill="#182633"/>
+  <text x="592" y="794" fill="#8AF7CF" font-family="'IBM Plex Mono', monospace" font-size="20">signal amber</text>
+  <text x="592" y="834" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="28">#FFD27B</text>
+  <rect x="808" y="740" width="212" height="130" rx="24" fill="#06131C"/>
+  <text x="832" y="794" fill="#8AF7CF" font-family="'IBM Plex Mono', monospace" font-size="20">deep base</text>
+  <text x="832" y="834" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="28">#06131C</text>
+  <rect x="620" y="182" width="430" height="430" rx="112" fill="#0E2432"/>
+  <path d="M726 266H832L786 902H680L726 266Z" fill="url(#markA)"/>
+  <path d="M832 266H938L892 902H786L832 266Z" fill="url(#markA)" fill-opacity="0.62"/>
+  <path d="M708 404H1016" stroke="#D1EDFF" stroke-opacity="0.18" stroke-width="22" stroke-linecap="round"/>
+  <path d="M680 544H984" stroke="#8AF7CF" stroke-opacity="0.22" stroke-width="36" stroke-linecap="round"/>
+  <path d="M652 690H952" stroke="#6DB9FF" stroke-opacity="0.2" stroke-width="42" stroke-linecap="round"/>
+  <circle cx="956" cy="304" r="28" fill="#FFD27B"/>
+  <circle cx="956" cy="304" r="56" stroke="#FFD27B" stroke-opacity="0.16" stroke-width="10"/>
+  <text x="88" y="1008" fill="#EBF5FF" font-family="'Space Grotesk', sans-serif" font-size="48" font-weight="700">
+    Engineered calm over noisy data.
+  </text>
+  <text x="88" y="1062" fill="#93AEC1" font-family="'Space Grotesk', sans-serif" font-size="26">
+    The mark layers disclosure bands inside a controlled field
+  </text>
+  <text x="88" y="1102" fill="#93AEC1" font-family="'Space Grotesk', sans-serif" font-size="26">
+    to imply filtering, redaction, and decision boundaries.
+  </text>
+</svg>
