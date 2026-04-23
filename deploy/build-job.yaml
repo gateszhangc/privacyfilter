@@ -24,7 +24,7 @@ spec:
             secretName: privacyfilter-build-registry
       initContainers:
         - name: checkout
-          image: alpine/git:2.47.0
+          image: alpine/git:latest
           env:
             - name: REPOSITORY
               value: "__REPOSITORY__"
@@ -62,4 +62,3 @@ spec:
               mountPath: /workspace
             - name: docker-config
               mountPath: /kaniko/.docker
-
