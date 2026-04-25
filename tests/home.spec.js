@@ -9,11 +9,12 @@ test.describe("Privacy Filter landing page", () => {
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /PII detection and masking/i);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://privacyfilter.lol/");
 
-    await expect(page.getByRole("link", { name: "Join the Waitlist" }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "View GitHub" })).toHaveAttribute(
-      "href",
-      "https://github.com/openai/privacy-filter"
-    );
+    const waitlistLinks = page.getByRole("link", { name: "Join the Waitlist" });
+    await expect(waitlistLinks.first()).toBeVisible();
+    await expect(waitlistLinks).toHaveCount(2);
+    await expect(waitlistLinks.first()).toHaveAttribute("href", "https://mirofish.my/");
+    await expect(waitlistLinks.nth(1)).toHaveAttribute("href", "https://mirofish.my/");
+    await expect(page.getByRole("link", { name: "View GitHub" })).toHaveAttribute("href", "https://mirofish.my/");
 
     await expect(page.locator("#taxonomy .taxonomy-card")).toHaveCount(8);
     await expect(page.locator("#modes .mode-card")).toHaveCount(3);
@@ -22,14 +23,28 @@ test.describe("Privacy Filter landing page", () => {
     const faq = page.locator("#faq details").first();
     await faq.locator("summary").click();
     await expect(faq).toHaveAttribute("open", "");
-
-    await page.getByRole("link", { name: "Join the Waitlist" }).first().click();
-    await expect(page.locator("#contact")).toBeInViewport();
-
     const imagesLoaded = await page.evaluate(() =>
       Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0)
     );
     expect(imagesLoaded).toBe(true);
+  });
+
+  test("cta buttons navigate to mirofish", async ({ page }) => {
+    await page.goto("/");
+
+    await Promise.all([
+      page.waitForURL(/https:\/\/mirofish\.my\/?/, { waitUntil: "commit" }),
+      page.getByRole("link", { name: "Join the Waitlist" }).first().click()
+    ]);
+    await expect(page).toHaveURL(/https:\/\/mirofish\.my\/?/);
+
+    await page.goto("/");
+
+    await Promise.all([
+      page.waitForURL(/https:\/\/mirofish\.my\/?/, { waitUntil: "commit" }),
+      page.getByRole("link", { name: "View GitHub" }).click()
+    ]);
+    await expect(page).toHaveURL(/https:\/\/mirofish\.my\/?/);
   });
 
   test("mobile layout stays within viewport and keeps CTA accessible", async ({ browser }) => {
@@ -53,4 +68,3 @@ test.describe("Privacy Filter landing page", () => {
     await context.close();
   });
 });
-
